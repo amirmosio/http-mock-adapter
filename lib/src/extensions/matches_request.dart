@@ -57,8 +57,8 @@ extension MatchesRequest on RequestOptions {
         return false;
       }
     } else if (actual is Map && expected is Map) {
-      for (final key in expected.keys.toList()) {
-        if (!actual.containsKey(key)) {
+      for (final key in Set.from(expected.keys.followedBy(actual.keys))) {
+        if (!actual.containsKey(key) || !expected.containsKey(key)) {
           return false;
         } else if (expected[key] is Matcher) {
           // Check matcher for the configured request.
