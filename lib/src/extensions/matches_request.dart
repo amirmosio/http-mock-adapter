@@ -62,7 +62,7 @@ extension MatchesRequest on RequestOptions {
           ? expected.keys
           : Set.from(expected.keys.followedBy(actual.keys))) {
         if (!actual.containsKey(key) ||
-            (acceptSubset ? true : (!expected.containsKey(key)))) {
+            (acceptSubset ? false : (!expected.containsKey(key)))) {
           return false;
         } else if (expected[key] is Matcher) {
           // Check matcher for the configured request.
