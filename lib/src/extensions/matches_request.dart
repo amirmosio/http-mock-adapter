@@ -9,9 +9,10 @@ extension MatchesRequest on RequestOptions {
   /// [request] is the configured [Request] which would contain the matchers if used.
   bool matchesRequest(Request request) {
     final routeMatched = doesRouteMatch(path, request.route);
-    final requestBodyMatched = matches(data, request.data);
-    final queryParametersMatched =
-        matches(queryParameters, request.queryParameters ?? {});
+    final requestBodyMatched = matches(data, request.data, acceptSubset: false);
+    final queryParametersMatched = matches(
+        queryParameters, request.queryParameters ?? {},
+        acceptSubset: false);
     final headersMatched = matches(headers, request.headers ?? {});
 
     return routeMatched &&
@@ -45,7 +46,7 @@ extension MatchesRequest on RequestOptions {
   }
 
   /// Check the map keys and values determined by the definition.
-  bool matches(dynamic actual, dynamic expected) {
+  bool matches(dynamic actual, dynamic expected, {bool acceptSubset = true}) {
     if (actual == null && expected == null) {
       return true;
     }
@@ -57,8 +58,11 @@ extension MatchesRequest on RequestOptions {
         return false;
       }
     } else if (actual is Map && expected is Map) {
-      for (final key in expected.keys.toList()) {
-        if (!actual.containsKey(key)) {
+      for (final key in acceptSubset
+          ? expected.keys
+          : Set.from(expected.keys.followedBy(actual.keys))) {
+        if (!actual.containsKey(key) ||
+            (acceptSubset ? true : (!expected.containsKey(key)))) {
           return false;
         } else if (expected[key] is Matcher) {
           // Check matcher for the configured request.
