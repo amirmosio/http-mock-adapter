@@ -69,7 +69,10 @@ extension MatchesRequest on RequestOptions {
           if (!expected[key].matches(actual[key])) {
             return false;
           }
-        } else if (expected[key] != actual[key]) {
+        } else if (expected[key] != actual[key] &&
+            (expected[key] is double &&
+                actual[key] is double &&
+                (expected[key] - actual[key]).abs() >= 0.000001)) {
           // Exact match unless map.
           if (expected[key] is Map && actual[key] is Map) {
             if (!matches(actual[key], expected[key])) {
