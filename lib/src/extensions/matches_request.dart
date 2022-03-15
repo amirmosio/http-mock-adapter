@@ -9,7 +9,7 @@ extension MatchesRequest on RequestOptions {
   /// [request] is the configured [Request] which would contain the matchers if used.
   bool matchesRequest(Request request) {
     final routeMatched = doesRouteMatch(path, request.route);
-    final requestBodyMatched = matches(data, request.data, acceptSubset: false);
+    // final requestBodyMatched = matches(data, request.data, acceptSubset: false);
     final queryParametersMatched = matches(
         queryParameters, request.queryParameters ?? {},
         acceptSubset: false);
@@ -17,7 +17,6 @@ extension MatchesRequest on RequestOptions {
 
     return routeMatched &&
         method == request.method?.name &&
-        requestBodyMatched &&
         queryParametersMatched;
   }
 
