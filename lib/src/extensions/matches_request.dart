@@ -13,13 +13,12 @@ extension MatchesRequest on RequestOptions {
     final queryParametersMatched = matches(
         queryParameters, request.queryParameters ?? {},
         acceptSubset: false);
-    final headersMatched = matches(headers, request.headers ?? {});
+    // final headersMatched = matches(headers, request.headers ?? {});
 
     return routeMatched &&
         method == request.method?.name &&
         requestBodyMatched &&
-        queryParametersMatched &&
-        headersMatched;
+        queryParametersMatched;
   }
 
   /// Check to see if route matches the mock specification
