@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-// ignore: implementation_imports
-import 'package:dio/src/parameter.dart' show ListParam;
 import 'package:http_mock_adapter/src/matchers/any.dart';
 import 'package:http_mock_adapter/src/matchers/boolean.dart';
 import 'package:http_mock_adapter/src/matchers/decimal.dart';
@@ -14,7 +12,6 @@ import 'package:http_mock_adapter/src/matchers/regexp.dart';
 import 'package:http_mock_adapter/src/matchers/string.dart';
 
 export 'package:http_mock_adapter/src/matchers/matcher.dart';
-export 'package:http_mock_adapter/src/matchers/matchers.dart' show Matchers;
 
 /// [Matchers] is an interface for various [Matcher] types.
 abstract class Matchers {

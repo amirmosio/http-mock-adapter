@@ -43,15 +43,30 @@ void main() {
       }
     });
 
+    test('test MockDataCallback', () async {
+      var data = {'id': 1, 'name': 'mock'};
+      Response<dynamic> response;
+
+      dioAdapter.onPost(
+        path,
+        (server) => server.reply(200, data),
+        data: (options) {
+          options = options as RequestOptions;
+          return options.data;
+        },
+      );
+
+      response = await dio.post(path, data: data);
+
+      expect(data, response.data);
+    });
+
     test('throws AssertionError when unable to find mocked route', () async {
       expect(
         () async => await dio.get('/undefined'),
         throwsA(
           predicate(
-            (DioError dioError) => dioError.message.startsWith(
-              'Assertion failed',
-            ),
-          ),
+              (DioException dioError) => dioError.error is AssertionError),
         ),
       );
     });

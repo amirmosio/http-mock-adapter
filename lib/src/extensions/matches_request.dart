@@ -1,14 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:http_mock_adapter/src/matchers/matchers.dart';
 import 'package:http_mock_adapter/src/request.dart';
+import 'package:http_mock_adapter/src/types.dart';
 
 /// [MatchesRequest] enhances the [RequestOptions] by allowing different types
 /// of matchers to validate the data and headers of the request.
 extension MatchesRequest on RequestOptions {
   /// Check values against matchers.
   /// [request] is the configured [Request] which would contain the matchers if used.
-  bool matchesRequest(Request request) {
+  bool matchesRequest(Request request, bool needsExactBody) {
     final routeMatched = doesRouteMatch(path, request.route);
+
     // final requestBodyMatched = matches(data, request.data, acceptSubset: false);
     final queryParametersMatched = matches(
         queryParameters, request.queryParameters ?? {},
@@ -44,11 +46,13 @@ extension MatchesRequest on RequestOptions {
   }
 
   /// Check the map keys and values determined by the definition.
-  bool matches(dynamic actual, dynamic expected, {bool acceptSubset = true}) {
+  bool matches(dynamic actual, dynamic expected, {bool acceptSubset = true, bool exactMaps = false}) {
     if (actual == null && expected == null) {
       return true;
     }
 
+    /// if data is MockDataCallback do not need to match;
+    if (expected is MockDataCallback) return true;
     if (expected is Matcher) {
       /// Check the match here to bypass the fallthrough strict equality check
       /// at the end.
@@ -56,6 +60,11 @@ extension MatchesRequest on RequestOptions {
         return false;
       }
     } else if (actual is Map && expected is Map) {
+      
+      // If exactMap is true, ensure that actual and expected have the same length.
+      if (exactMaps && actual.length != expected.length) {
+        return false;
+      }
       for (final key in acceptSubset
           ? expected.keys
           : Set.from(expected.keys.followedBy(actual.keys))) {
@@ -74,7 +83,7 @@ extension MatchesRequest on RequestOptions {
                 (expected[key] - actual[key]).abs() >= 0.000001)) {
           // Exact match unless map.
           if (expected[key] is Map && actual[key] is Map) {
-            if (!matches(actual[key], expected[key])) {
+            if (!matches(actual[key], expected[key], exactMaps: exactMaps)) {
               // Allow maps to use matchers.
               return false;
             }
@@ -84,6 +93,11 @@ extension MatchesRequest on RequestOptions {
             return false;
           }
         }
+      }
+
+      // If exactMap is true, check that there are no keys in actual that are not in expected.
+      if (exactMaps && actual.keys.any((key) => !expected.containsKey(key))) {
+        return false;
       }
     } else if (actual is List && expected is List) {
       for (var index in Iterable.generate(actual.length)) {
